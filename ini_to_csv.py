@@ -31,13 +31,12 @@ def move_ingested_files(file_paths):
 
 def main():
     current_dir = os.getcwd()
-    three_dirs_back = os.path.abspath(os.path.join(current_dir, '..', '..', '..'))
-    directories = get_folders(three_dirs_back)
+    directories = get_folders(current_dir)
     if not directories:
         print("No directories found in the current directory.")
         return
 
-    selected_directory = select_directory_gui(three_dirs_back)
+    selected_directory = select_directory_gui(current_dir)
     if not selected_directory:
         print("No directory selected.")
         return
