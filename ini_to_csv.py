@@ -1,4 +1,4 @@
-import configparser, csv, glob, os, shutil
+import configparser, csv, glob, os, shutil, subprocess
 import tkinter as tk
 from tkinter import filedialog
 
@@ -106,6 +106,9 @@ def main():
             writer.writerow(data_row)
 
     move_ingested_files(ini_files)
+    print("Process completed successfully.")
+    print(f"Opening folder: {selected_directory}")
+    subprocess.run(['explorer', '/select,', os.path.join(selected_directory, 'output.csv')])
 
 if __name__ == "__main__":
     main()
