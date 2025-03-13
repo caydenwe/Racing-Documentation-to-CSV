@@ -110,7 +110,7 @@ def main():
     move_ingested_files(ini_files)
     print("Process completed successfully.")
     print(f"Opening folder: {outputfile_path}")
-    subprocess.run(['explorer', '/select,', outputfile_path])
+    subprocess.run(['explorer', f'/select,{outputfile_path}'])
 
 if __name__ == "__main__":
     main()
