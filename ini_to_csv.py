@@ -78,9 +78,11 @@ def main():
     print(f"Common headers: {common_headers}")
     print(f"Additional headers: {additional_headers}")
     print(f"Final headers: {final_headers}")
+    
+    outputfile_path = os.path.join(selected_directory, 'output.csv')
 
     # --- Step 2: Write CSV file ---
-    with open(os.path.join(selected_directory, 'output.csv'), mode='w', newline='') as file:
+    with open(outputfile_path, mode='w', newline='') as file:
         writer = csv.writer(file)
         header_row = ['filename', ''] + final_headers
         writer.writerow(header_row)
@@ -107,8 +109,8 @@ def main():
 
     move_ingested_files(ini_files)
     print("Process completed successfully.")
-    print(f"Opening folder: {selected_directory}")
-    subprocess.run(['explorer', '/select,', os.path.join(selected_directory, 'output.csv')])
+    print(f"Opening folder: {outputfile_path}")
+    subprocess.run(['explorer', '/select,', outputfile_path])
 
 if __name__ == "__main__":
     main()
