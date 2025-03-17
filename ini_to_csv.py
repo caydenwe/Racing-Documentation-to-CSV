@@ -1,3 +1,12 @@
+"""
+INI Files Aggregator and Ingestor Script
+----------------------------------------
+
+Version: 1.0.0
+Date: 2025-03-17
+Author: Cayden Wellsmore
+"""
+
 import configparser, csv, glob, os, shutil, subprocess
 import tkinter as tk
 from tkinter import filedialog
