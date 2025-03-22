@@ -57,7 +57,7 @@ if %count%==1 (
 
     REM Delete intermediary files for exe creation
     del /f /q "ini_to_csv_script.spec"
-    del /f /q "ini_to_csv_script.py"
+    del /f /q "ini_to_csv_script_v!version!.py"
     del /f /q "icon.ico"
     rmdir /s /q "dist"
     rmdir /s /q "build"
@@ -68,7 +68,7 @@ if %count%==1 (
     ) else (
         echo You have the latest version available.
         del /f /q "icon.ico"
-        del /f /q "ini_to_csv_script.py"
+        del /f /q "ini_to_csv_script_v!version!.py"
     )
 )
 else (
@@ -85,7 +85,7 @@ else (
     REM Delete intermediary files for exe creation
     echo Deleting intermediary files for exe creation...
     del /f /q "ini_to_csv_script.spec"
-    del /f /q "ini_to_csv.py"
+    del /f /q "ini_to_csv_script_v!version!.py"
     del /f /q "icon.ico"
     rmdir /s /q "dist"
     rmdir /s /q "build"
