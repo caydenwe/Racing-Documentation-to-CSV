@@ -91,4 +91,5 @@ else (
 )
 
 endlocal
+pause
 echo Script finished.
