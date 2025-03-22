@@ -73,12 +73,12 @@ if %count%==1 (
                 echo You have the latest version available.
                 pause
                 del /f /q "Icon.ico"
-                del /f /q "ini_to_csv_script.py"
+                del /f /q "ini_to_csv_script_v%version%.py"
             ) else (
                 echo The version format is incorrect. Exiting.
                 pause
                 del /f /q "Icon.ico"
-                del /f /q "ini_to_csv_script.py"
+                del /f /q "ini_to_csv_script_v%version%.py"
                 exit /b 1
             )
         )
