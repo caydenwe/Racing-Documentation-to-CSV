@@ -47,4 +47,3 @@ $body = @{
 Invoke-RestMethod -Method Put -Uri $apiUrl -Headers @{Authorization = "token $token"} -Body $body
 
 Write-Host "Thank you! Your feedback has been submitted." -ForegroundColor Green
-Pause
