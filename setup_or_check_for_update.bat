@@ -59,6 +59,13 @@ else (
 
 REM Function 1
 :Function1
+
+if exist "icon.ico" (
+    echo File exists!
+) else (
+    echo File does not exist.
+)
+pause
 REM Run PyInstaller to create executable with version number in name
 python -m PyInstaller --name=ini_to_csv_script_v!version! --onefile --icon=icon.ico ini_to_csv_script.py
 
@@ -77,7 +84,5 @@ echo Creating desktop shortcut...
 powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $DesktopPath = [System.Environment]::GetFolderPath('Desktop'); $Shortcut = $WshShell.CreateShortcut($DesktopPath + '\INI to CSV Converter.lnk'); $Shortcut.TargetPath = 'C:\Users\timwe\OneDrive\South Coast Motor Racing\simulator stuff\ini_to_csv_script_v!version!.exe'; $Shortcut.WorkingDirectory = 'C:\Users\timwe\OneDrive\South Coast Motor Racing\simulator stuff'; $Shortcut.WindowStyle = 1; $Shortcut.Description = 'INI to CSV Converter'; $Shortcut.Save()"
 goto :eof
 
-
 endlocal
-pause
 echo Script finished.
