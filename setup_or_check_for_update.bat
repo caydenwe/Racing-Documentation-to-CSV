@@ -62,12 +62,6 @@ else (
 REM Function 1
 :Function1
 
-if exist "icon.ico" (
-    echo File exists!
-) else (
-    echo File does not exist.
-)
-pause
 setlocal enabledelayedexpansion
 REM Run PyInstaller to create executable with version number in name
 python -m PyInstaller --name=ini_to_csv_script_v!version! --onefile --icon=icon.ico ini_to_csv_script.py
