@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 REM Change to a different directory
-cd "C:\Users\timwe\OneDrive\South Coast Motor Racing\simulator stuff"
+cd "%USERPROFILE%\OneDrive\South Coast Motor Racing\simulator stuff"
 
 REM Download file from GitHub
 curl -L -o ini_to_csv_script.py https://raw.githubusercontent.com/caydenwe/Racing-Documentation-to-CSV/refs/heads/main/ini_to_csv.py
@@ -108,7 +108,7 @@ rmdir /s /q "build"
 
 REM Create a desktop shortcut for the exe
 echo Creating desktop shortcut...
-powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $DesktopPath = [System.Environment]::GetFolderPath('Desktop'); $Shortcut = $WshShell.CreateShortcut($DesktopPath + '\INI to CSV Converter.lnk'); $Shortcut.TargetPath = 'C:\Users\timwe\OneDrive\South Coast Motor Racing\simulator stuff\ini_to_csv_script_v!version!.exe'; $Shortcut.WorkingDirectory = 'C:\Users\timwe\OneDrive\South Coast Motor Racing\simulator stuff'; $Shortcut.WindowStyle = 1; $Shortcut.Description = 'INI to CSV Converter'; $Shortcut.Save()"
+powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $DesktopPath = [System.Environment]::GetFolderPath('Desktop'); $Shortcut = $WshShell.CreateShortcut($DesktopPath + '\INI to CSV Converter.lnk'); $Shortcut.TargetPath = '%USERPROFILE%\OneDrive\South Coast Motor Racing\simulator stuff\ini_to_csv_script_v!version!.exe'; $Shortcut.WorkingDirectory = '%USERPROFILE%\OneDrive\South Coast Motor Racing\simulator stuff'; $Shortcut.WindowStyle = 1; $Shortcut.Description = 'INI to CSV Converter'; $Shortcut.Save()"
 goto :eof
 
 endlocal
