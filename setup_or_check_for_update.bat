@@ -6,7 +6,7 @@ cd "C:\Users\timwe\OneDrive\South Coast Motor Racing\simulator stuff"
 
 REM Download file from GitHub
 curl -L -o ini_to_csv_script.py https://raw.githubusercontent.com/caydenwe/Racing-Documentation-to-CSV/refs/heads/main/ini_to_csv.py
-curl -L -o icon.ico https://raw.githubusercontent.com/caydenwe/Racing-Documentation-to-CSV/refs/heads/main/icon.ico
+curl -L -o Icon.ico https://raw.githubusercontent.com/caydenwe/Racing-Documentation-to-CSV/refs/heads/main/Icon.ico
 
 REM Extract version from Python file
 for /f "tokens=2 delims= " %%A in ('findstr /C:"Version:" ini_to_csv_script.py') do set "version=%%A"
@@ -47,7 +47,7 @@ if %count%==1 (
         call :Function1
     ) else (
         echo You have the latest version available.
-        del /f /q "icon.ico"
+        del /f /q "Icon.ico"
         del /f /q "ini_to_csv_script.py"
     )
 ) else (
@@ -59,7 +59,7 @@ REM Function 1
 :Function1
 
 REM Run PyInstaller to create executable with version number in name
-python -m PyInstaller --name=ini_to_csv_script_v!version! --onefile --icon=icon.ico ini_to_csv_script_v!version!.py
+python -m PyInstaller --name=ini_to_csv_script_v!version! --onefile --icon=Icon.ico ini_to_csv_script_v!version!.py
 
 pause
 REM Move selected files to the main folder
@@ -68,7 +68,7 @@ move dist\ini_to_csv_script_v!version!.exe .\
 REM Delete intermediary files for exe creation
 del /f /q "ini_to_csv_script_v!version!.spec"
 del /f /q "ini_to_csv_script_v!version!.py"
-del /f /q "icon.ico"
+del /f /q "Icon.ico"
 rmdir /s /q "dist"
 rmdir /s /q "build"
 
