@@ -23,6 +23,7 @@ if "%choice%"=="1" (
         echo report.ps1 already exists.
     )
     powershell -ExecutionPolicy Bypass -File "%~dp0report.ps1"
+    del "report.ps1"
 ) else if "%choice%"=="2" (
     echo You chose to check for updates!
     if not exist "setup_or_check_for_update.bat" (
