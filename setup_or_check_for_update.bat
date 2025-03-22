@@ -1,4 +1,6 @@
 @echo off
+setlocal enabledelayedexpansion
+
 REM Change to a different directory
 cd "C:\Users\timwe\OneDrive\South Coast Motor Racing\simulator stuff"
 
@@ -10,8 +12,12 @@ REM Extract version from Python file
 for /f "tokens=2 delims= " %%A in ('findstr /C:"Version:" ini_to_csv_script.py') do set "version=%%A"
 set "version=%version: =%"
 
+echo version
+
 REM Copy the Python file with a versioned name
 copy ini_to_csv_script.py "ini_to_csv_script_v!version!.py"
+
+endlocal
 
 REM Initialize a counter
 set count=0
@@ -50,7 +56,7 @@ if %count%==1 (
 
     REM Delete intermediary files for exe creation
     if exist "ini_to_csv_script.spec" del /f /q "ini_to_csv_script.spec"
-    if exist "ini_to_csv.py" del /f /q "ini_to_csv.py"
+    if exist "ini_to_csv_script.py" del /f /q "ini_to_csv_script.py"
     if exist "icon.ico" del /f /q "icon.ico"
 
     REM Remove directories only if they exist
