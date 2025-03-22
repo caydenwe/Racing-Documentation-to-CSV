@@ -49,11 +49,13 @@ if %count%==1 (
     move dist\ini_to_csv_script_v%version%.exe .\
 
     REM Delete intermediary files for exe creation
-    del /f /q "ini_to_csv_script.spec"
-    del /f /q "ini_to_csv.py"
-    del /f /q "icon.ico"
-    rmdir /s /q "dist"
-    rmdir /s /q "build"
+    if exist "ini_to_csv_script.spec" del /f /q "ini_to_csv_script.spec"
+    if exist "ini_to_csv.py" del /f /q "ini_to_csv.py"
+    if exist "icon.ico" del /f /q "icon.ico"
+
+    REM Remove directories only if they exist
+    if exist "dist" rmdir /s /q "dist"
+    if exist "build" rmdir /s /q "build"
 
     REM Create a desktop shortcut for the exe
     echo Creating desktop shortcut...
