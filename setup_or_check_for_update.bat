@@ -21,6 +21,7 @@ set count=0
 REM Loop through matching files
 for %%F in (ini_to_csv_script_v*.*.*.exe) do (
     echo Processing: %%F
+    pause
     REM Increment the counter
     set /a count+=1
     
@@ -40,6 +41,8 @@ for %%F in (ini_to_csv_script_v*.*.*.exe) do (
     REM Remove the suffix ".exe"
     set "filepart=!filepart:.exe=!"
 )
+echo %count% files found.
+pause
 
 REM Compare the versions
 if %count%==1 (
