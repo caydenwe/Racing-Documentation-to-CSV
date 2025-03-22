@@ -56,6 +56,8 @@ for /f "tokens=1,2,3 delims=." %%a in ("!filepart!") do (
     set file_patch=%%c
 )
 
+set file_major=%file_major:v=%
+
 echo Current version
 echo !filepart!
 echo file_major: !file_major!
