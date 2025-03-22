@@ -56,23 +56,6 @@ for /f "tokens=1,2,3 delims=." %%a in ("!filepart!") do (
     set file_patch=%%c
 )
 
-echo removing v from file_major
-set file_major=%file_major:v=%
-
-echo Current version
-echo !filepart!
-echo file_major: !file_major!
-echo file_minor: !file_minor!
-echo file_patch: !file_patch!
-
-echo Latest available version
-echo !version!
-echo major: !major!
-echo minor: !minor!
-echo patch: !patch!
-
-pause
-
 REM Compare the versions
 if %count%==1 (
     if !file_major! gtr !major! (
@@ -88,10 +71,12 @@ if %count%==1 (
                 call :Function1
             ) else if !file_patch! equ !patch! (
                 echo You have the latest version available.
+                pause
                 del /f /q "Icon.ico"
                 del /f /q "ini_to_csv_script.py"
             ) else (
                 echo The version format is incorrect. Exiting.
+                pause
                 del /f /q "Icon.ico"
                 del /f /q "ini_to_csv_script.py"
                 exit /b 1
@@ -105,6 +90,8 @@ if %count%==1 (
 
 REM Function 1
 :Function1
+
+pause
 
 REM Run PyInstaller to create executable with version number in name
 python -m PyInstaller --name=ini_to_csv_script_v!version! --onefile --icon=Icon.ico ini_to_csv_script_v!version!.py
