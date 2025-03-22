@@ -18,15 +18,9 @@ rename ini_to_csv_script.py ini_to_csv_script_v%version%.py
 REM Initialize a counter
 set count=0
 
-for %%F in (ini_to_csv_script_v*.*.*.exe) do (
-    echo Matching file: %%F
-)
-pause
-
 REM Loop through matching files
 for %%F in (ini_to_csv_script_v*.*.*.exe) do (
-    echo Processing: %%F
-    pause
+
     REM Increment the counter
     set /a count+=1
     
@@ -47,17 +41,45 @@ for %%F in (ini_to_csv_script_v*.*.*.exe) do (
     set "filepart=!filepart:.exe=!"
 )
 echo %count% files found.
-pause
+
+REM Split the version number (major, minor, patch)
+for /f "tokens=1,2,3 delims=." %%a in ("%version%") do (
+    set major=%%a
+    set minor=%%b
+    set patch=%%c
+)
+
+REM Split the installed file version
+for /f "tokens=1,2,3 delims=." %%a in ("!filepart!") do (
+    set file_major=%%a
+    set file_minor=%%b
+    set file_patch=%%c
+)
 
 REM Compare the versions
 if %count%==1 (
-    if "!filepart!" gtr "%version%" (
-        echo The version from the file is newer than the Python version.
+    if !file_major! gtr !major! (
+        echo There is a new version available.
         call :Function1
-    ) else (
-        echo You have the latest version available.
-        del /f /q "Icon.ico"
-        del /f /q "ini_to_csv_script.py"
+    ) else if !file_major! equ !major! (
+        if !file_minor! gtr !minor! (
+            echo There is a new version available.
+            call :Function1
+        ) else if !file_minor! equ !minor! (
+            if !file_patch! gtr !patch! (
+                echo There is a new version available.
+                call :Function1
+            ) else if !file_patch! equ !patch! (
+                echo You have the latest version available.
+                del /f /q "Icon.ico"
+                del /f /q "ini_to_csv_script.py"
+            ) else (
+                echo The version format is incorrect. Exiting.
+                del /f /q "Icon.ico"
+                del /f /q "ini_to_csv_script.py"
+                exit /b 1
+            )
+        )
     )
 ) else (
     echo You have not installed this program before, installing from scratch.
