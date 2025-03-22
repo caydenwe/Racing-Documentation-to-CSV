@@ -13,7 +13,7 @@ for /f "tokens=2 delims= " %%A in ('findstr /C:"Version:" ini_to_csv_script.py')
 set "version=%version: =%"
 
 REM Copy the Python file with a versioned name
-mv ini_to_csv_script.py "ini_to_csv_script_v!version!.py"
+rename ini_to_csv_script.py ini_to_csv_script_v%version%.py
 
 REM Initialize a counter
 set count=0
