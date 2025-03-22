@@ -83,11 +83,11 @@ if %count%==1 (
             )
         )
     )
-@REM ) else (
-@REM     echo You have not installed this program before, installing from scratch.
-@REM     call :Function1
+) else (
+    echo You have not installed this program before, installing from scratch.
+    call :Function1
 )
-
+echo after else
 REM Function 1
 :Function1
 echo Running Function1
