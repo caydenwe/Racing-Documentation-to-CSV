@@ -35,7 +35,7 @@ for %%F in (ini_to_csv_script_v*.*.*.exe) do (
     set "filepart="
     
     REM Remove the prefix "ini_to_csv_script_v"
-    set "filepart=!filename:~18!"
+    set "filepart=!filename:~19!"
 
     REM Remove the suffix ".exe"
     set "filepart=!filepart:.exe=!"
@@ -55,8 +55,6 @@ for /f "tokens=1,2,3 delims=." %%a in ("!filepart!") do (
     set file_minor=%%b
     set file_patch=%%c
 )
-
-set file_major=%file_major:v=%
 
 echo Current version
 echo !filepart!
