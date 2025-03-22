@@ -49,7 +49,7 @@ if %count%==1 (
     ) else (
         echo You have the latest version available.
         del /f /q "icon.ico"
-        del /f /q "ini_to_csv_script_v!version!.py"
+        del /f /q "ini_to_csv_script.py"
     )
 )
 else (
@@ -73,7 +73,8 @@ REM Move selected files to the main folder
 move dist\ini_to_csv_script_v!version!.exe .\
 
 REM Delete intermediary files for exe creation
-del /f /q "ini_to_csv_script.spec"
+del /f /q "ini_to_csv_script_v!version!.spec"
+del /f /q "ini_to_csv_script.py"
 del /f /q "ini_to_csv_script_v!version!.py"
 del /f /q "icon.ico"
 rmdir /s /q "dist"
