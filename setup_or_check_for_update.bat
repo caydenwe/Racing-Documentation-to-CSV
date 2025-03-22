@@ -12,8 +12,6 @@ REM Extract version from Python file
 for /f "tokens=2 delims= " %%A in ('findstr /C:"Version:" ini_to_csv_script.py') do set "version=%%A"
 set "version=%version: =%"
 
-echo version
-
 REM Copy the Python file with a versioned name
 copy ini_to_csv_script.py "ini_to_csv_script_v!version!.py"
 
@@ -47,22 +45,7 @@ if %count%==1 (
     if "!filepart!" gtr "%version%" (
     echo The version from the file is newer than the Python version.
 
-    REM Run PyInstaller to create executable with version number in name
-    python -m PyInstaller --name=ini_to_csv_script_v!version! --onefile --icon=icon.ico ini_to_csv_script.py
-
-    REM Move selected files to the main folder
-    move dist\ini_to_csv_script_v!version!.exe .\
-
-    REM Delete intermediary files for exe creation
-    del /f /q "ini_to_csv_script.spec"
-    del /f /q "ini_to_csv_script_v!version!.py"
-    del /f /q "icon.ico"
-    rmdir /s /q "dist"
-    rmdir /s /q "build"
-
-    REM Create a desktop shortcut for the exe
-    echo Creating desktop shortcut...
-    powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $DesktopPath = [System.Environment]::GetFolderPath('Desktop'); $Shortcut = $WshShell.CreateShortcut($DesktopPath + '\INI to CSV Converter.lnk'); $Shortcut.TargetPath = 'C:\Users\timwe\OneDrive\South Coast Motor Racing\simulator stuff\ini_to_csv_script_v!version!.exe'; $Shortcut.WorkingDirectory = 'C:\Users\timwe\OneDrive\South Coast Motor Racing\simulator stuff'; $Shortcut.WindowStyle = 1; $Shortcut.Description = 'INI to CSV Converter'; $Shortcut.Save()"
+    call :Function1
     ) else (
         echo You have the latest version available.
         del /f /q "icon.ico"
@@ -71,24 +54,29 @@ if %count%==1 (
 )
 else (
     echo You have not installed this program before, installing from scratch.
-
-    REM Run PyInstaller to create executable with version number in name
-    python -m PyInstaller --name=ini_to_csv_script_v!version! --onefile --icon=icon.ico ini_to_csv_script.py
-
-    REM Move selected files to the main folder
-    move dist\ini_to_csv_script_v!version!.exe .\
-
-    REM Delete intermediary files for exe creation
-    del /f /q "ini_to_csv_script.spec"
-    del /f /q "ini_to_csv_script_v!version!.py"
-    del /f /q "icon.ico"
-    rmdir /s /q "dist"
-    rmdir /s /q "build"
-
-    REM Create a desktop shortcut for the exe
-    echo Creating desktop shortcut...
-    powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $DesktopPath = [System.Environment]::GetFolderPath('Desktop'); $Shortcut = $WshShell.CreateShortcut($DesktopPath + '\INI to CSV Converter.lnk'); $Shortcut.TargetPath = 'C:\Users\timwe\OneDrive\South Coast Motor Racing\simulator stuff\ini_to_csv_script_v!version!.exe'; $Shortcut.WorkingDirectory = 'C:\Users\timwe\OneDrive\South Coast Motor Racing\simulator stuff'; $Shortcut.WindowStyle = 1; $Shortcut.Description = 'INI to CSV Converter'; $Shortcut.Save()"
+    call :Function1
 )
+
+REM Function 1
+:Function1
+REM Run PyInstaller to create executable with version number in name
+python -m PyInstaller --name=ini_to_csv_script_v!version! --onefile --icon=icon.ico ini_to_csv_script.py
+
+REM Move selected files to the main folder
+move dist\ini_to_csv_script_v!version!.exe .\
+
+REM Delete intermediary files for exe creation
+del /f /q "ini_to_csv_script.spec"
+del /f /q "ini_to_csv_script_v!version!.py"
+del /f /q "icon.ico"
+rmdir /s /q "dist"
+rmdir /s /q "build"
+
+REM Create a desktop shortcut for the exe
+echo Creating desktop shortcut...
+powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $DesktopPath = [System.Environment]::GetFolderPath('Desktop'); $Shortcut = $WshShell.CreateShortcut($DesktopPath + '\INI to CSV Converter.lnk'); $Shortcut.TargetPath = 'C:\Users\timwe\OneDrive\South Coast Motor Racing\simulator stuff\ini_to_csv_script_v!version!.exe'; $Shortcut.WorkingDirectory = 'C:\Users\timwe\OneDrive\South Coast Motor Racing\simulator stuff'; $Shortcut.WindowStyle = 1; $Shortcut.Description = 'INI to CSV Converter'; $Shortcut.Save()"
+goto :eof
+
 
 endlocal
 pause
