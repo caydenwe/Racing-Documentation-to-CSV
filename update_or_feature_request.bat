@@ -33,10 +33,6 @@ if "%choice%"=="1" (
         echo report.ps1 already exists.
     )
     call setup_or_check_for_update.bat
-    if exist "setup_or_check_for_update.bat" (
-        echo "File exists"
-    )
-    pause
     del "setup_or_check_for_update.bat"
 )
 exit /b

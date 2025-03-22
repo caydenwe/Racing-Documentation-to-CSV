@@ -67,7 +67,6 @@ move dist\ini_to_csv_script_v!version!.exe .\
 
 REM Delete intermediary files for exe creation
 del /f /q "ini_to_csv_script_v!version!.spec"
-del /f /q "ini_to_csv_script.py"
 del /f /q "ini_to_csv_script_v!version!.py"
 del /f /q "icon.ico"
 rmdir /s /q "dist"
