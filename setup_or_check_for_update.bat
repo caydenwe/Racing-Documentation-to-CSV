@@ -18,6 +18,11 @@ rename ini_to_csv_script.py ini_to_csv_script_v%version%.py
 REM Initialize a counter
 set count=0
 
+for %%F in (ini_to_csv_script_v*.*.*.exe) do (
+    echo Matching file: %%F
+)
+pause
+
 REM Loop through matching files
 for %%F in (ini_to_csv_script_v*.*.*.exe) do (
     echo Processing: %%F
