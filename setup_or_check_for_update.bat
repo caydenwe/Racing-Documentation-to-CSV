@@ -56,6 +56,18 @@ for /f "tokens=1,2,3 delims=." %%a in ("!filepart!") do (
     set file_patch=%%c
 )
 
+echo Current version
+echo !filepart!
+echo file_major: !file_major!
+echo file_minor: !file_minor!
+echo file_patch: !file_patch!
+
+echo Latest available version
+echo !version!
+echo major: !major!
+echo minor: !minor!
+echo patch: !patch!
+
 REM Compare the versions
 if %count%==1 (
     if !file_major! gtr !major! (
