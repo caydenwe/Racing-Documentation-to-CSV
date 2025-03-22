@@ -61,7 +61,6 @@ REM Function 1
 REM Run PyInstaller to create executable with version number in name
 python -m PyInstaller --name=ini_to_csv_script_v!version! --onefile --icon=Icon.ico ini_to_csv_script_v!version!.py
 
-pause
 REM Move selected files to the main folder
 move dist\ini_to_csv_script_v!version!.exe .\
 
