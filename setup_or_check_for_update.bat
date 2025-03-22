@@ -45,16 +45,14 @@ for %%F in (ini_to_csv_script_v*.exe) do (
 REM Compare the versions
 if %count%==1 (
     if "!filepart!" gtr "%version%" (
-    echo The version from the file is newer than the Python version.
-
-    call :Function1
+        echo The version from the file is newer than the Python version.
+        call :Function1
     ) else (
         echo You have the latest version available.
         del /f /q "icon.ico"
         del /f /q "ini_to_csv_script.py"
     )
-)
-else (
+) else (
     echo You have not installed this program before, installing from scratch.
     call :Function1
 )
