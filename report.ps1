@@ -6,9 +6,6 @@ $envContent = Get-Content $envFilePath
 $tokenLine = $envContent | Where-Object { $_ -match "^GITHUB_TOKEN=" }
 $token = $tokenLine.Split('=')[1].Trim()
 
-# Print the token to the console
-Write-Host $token
-
 # Set variables
 $repoOwner = "caydenwe"
 $repoName = "Racing-Documentation-to-CSV"
