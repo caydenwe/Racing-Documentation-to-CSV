@@ -15,6 +15,8 @@ set "version=%version: =%"
 REM Copy the Python file with a versioned name
 copy ini_to_csv_script.py "ini_to_csv_script_v!version!.py"
 
+endlocal
+
 REM Initialize a counter
 set count=0
 
@@ -66,9 +68,11 @@ if exist "icon.ico" (
     echo File does not exist.
 )
 pause
+setlocal enabledelayedexpansion
 REM Run PyInstaller to create executable with version number in name
 python -m PyInstaller --name=ini_to_csv_script_v!version! --onefile --icon=icon.ico ini_to_csv_script.py
 
+pause
 REM Move selected files to the main folder
 move dist\ini_to_csv_script_v!version!.exe .\
 
