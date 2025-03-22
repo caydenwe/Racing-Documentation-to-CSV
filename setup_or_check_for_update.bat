@@ -20,6 +20,8 @@ set count=0
 
 REM Loop through matching files
 for %%F in (ini_to_csv_script_v*.exe) do (
+    echo %%F
+    pause
     REM Increment the counter
     set /a count+=1
     
