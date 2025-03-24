@@ -87,12 +87,10 @@ if %count%==1 (
     echo You have not installed this program before, installing from scratch.
     call :Function1
 )
-echo after else
 goto :eof
 
 REM Function 1
 :Function1
-echo Running Function1
 pause
 
 REM Run PyInstaller to create executable with version number in name
