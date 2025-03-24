@@ -88,6 +88,8 @@ if %count%==1 (
     call :Function1
 )
 echo after else
+goto :eof
+
 REM Function 1
 :Function1
 echo Running Function1
