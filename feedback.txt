@@ -1,4 +1,0 @@
-
-
-[2025-03-22 21:16:32] i feel that I spend alot of time on bug reporting
-[2025-03-25 17:16:12] Dear Software Developer. Thankyou for the updated version that seemed to be working better now. However, instead of typing on an old archaic terminal window, would be nice to have a nicer gui window bounce up and ask me to enter my text. You need to move forward into the 2020's and not be stuck back in the 1980's like me.... :) 
