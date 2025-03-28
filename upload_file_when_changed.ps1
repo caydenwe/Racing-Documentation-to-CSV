@@ -8,12 +8,6 @@ $fsWatcher.Filter = (Get-Item $sourceFilePath).Name
 $fsWatcher.NotifyFilter = [System.IO.NotifyFilters]'LastWrite, FileName, DirectoryName'
 $fsWatcher.InternalBufferSize = 8192  # Increase buffer size to 8 KB
 
-
-# Debug: Print directory and file to ensure it's correct
-Write-Host "Monitoring directory: $($fsWatcher.Path)"
-Write-Host "Monitoring file: $($fsWatcher.Filter)"
-Write-Host "NotifyFilter: $($fsWatcher.NotifyFilter)"
-
 # Action to take when a change is detected
 $action = {
     Write-Host "File change event triggered."
@@ -21,16 +15,13 @@ $action = {
     # Access the passed data from the MessageData
     $sourceFilePath = $Event.MessageData.SourceFilePath
     $backupDir = $Event.MessageData.BackupDir
-
-    Write-Host "Source file path: $sourceFilePath"
-    Write-Host "Backup directory: $backupDir"
     
     # Action to take when a change is detected
     $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
     Write-Host "Timestamp for backup: $timestamp"
 
     # Use Split-Path to get the base name of the file
-    $newFileName = "$($backupDir)\$(Split-Path $sourceFilePath -Leaf)_$timestamp.txt"
+    $newFileName = "$($backupDir)\$(Split-Path $sourceFilePath -Leaf)_$timestamp.act"
     Write-Host "Creating backup: $newFileName"
 
     try {
