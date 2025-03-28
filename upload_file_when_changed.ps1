@@ -56,6 +56,5 @@ Write-Host "Event handler registered. Monitoring file for changes."
 # Wait for events to trigger (this keeps the script running indefinitely)
 Wait-Event -SourceIdentifier FileChanged
 
-Pause
 # Clean up the event job
 $onChanged | Remove-Job -Force
