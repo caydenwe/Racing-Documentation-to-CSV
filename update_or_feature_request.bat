@@ -34,6 +34,5 @@ if "%choice%"=="1" (
     )
     call setup_or_check_for_update.bat
     del "setup_or_check_for_update.bat"
-    pause
 )
 exit /b
