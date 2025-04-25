@@ -14,7 +14,7 @@ def check_pillow():
         installed_packages = subprocess.check_output([sys.executable, "-m", "pip", "list"]).decode("utf-8")
         
         # Search for Pillow in the list of installed packages
-        if "Pillow" in installed_packages:
+        if "pillow" in installed_packages:
             print("Pillow is already installed.")
         else:
             print("Pillow is not installed. Installing now...")
