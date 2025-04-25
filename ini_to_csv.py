@@ -119,6 +119,9 @@ def main():
     
     outputfile_path = os.path.join(selected_directory, 'output.csv')
 
+    # Normalize path to use backslashes
+    outputfile_path = os.path.normpath(outputfile_path)
+
     # --- Step 2: Write CSV file ---
     with open(outputfile_path, mode='w', newline='') as file:
         writer = csv.writer(file)
