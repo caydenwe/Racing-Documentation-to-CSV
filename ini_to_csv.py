@@ -2,13 +2,15 @@
 INI Files Aggregator and Ingestor Script
 ----------------------------------------
 
-Version: 1.0.0
-Date: 2025-03-17
+Version: 1.1.0
+Date: 2025-04-26
 Author: Cayden Wellsmore
 """
 
-import configparser, csv, glob, os, shutil, subprocess
+import configparser, csv, glob, os, re, shutil, subprocess, sys
 import tkinter as tk
+import tkinter.messagebox as messagebox
+from datetime import datetime
 from tkinter import filedialog
 
 
@@ -21,7 +23,34 @@ def select_directory_gui(directory):
     return filedialog.askdirectory(initialdir=directory, title="Select Directory")
 
 def get_ini_files(directory):
-    return glob.glob(os.path.join(directory, '*.ini'))
+    files = glob.glob(os.path.join(directory, '*.ini'))
+    pattern = re.compile(r'^[A-Z]{3} \d{1,2} Setup [A-Z]$', re.IGNORECASE)
+
+    # Validate all filenames
+    invalid_files = [
+        os.path.basename(f) for f in files
+        if not pattern.match(os.path.splitext(os.path.basename(f))[0])
+    ]
+
+    if invalid_files:
+        error_message = (
+            "The naming convention of the files in the folder you selected "
+            "isn't consistent with the predetermined naming convention.\n\n"
+            "Expected format: MMM D Setup L\n"
+            "Examples: 'FEB 1 Setup A', 'Apr 9 Setup C'\n\n"
+            f"Issue found with:\n{chr(10).join(invalid_files)}"
+        )
+        messagebox.showerror("Filename Error", error_message)
+        sys.exit(1)
+
+    def sort_key(file):
+        name = os.path.splitext(os.path.basename(file))[0]
+        match = re.match(r'([A-Z]{3}) (\d{1,2}) setup ([A-Z])', name, re.IGNORECASE)
+        month_str, day_str, suffix = match.groups()
+        date_part = datetime.strptime(f"{month_str.upper()} {int(day_str)}", "%b %d")
+        return (date_part, suffix.upper())
+
+    return sorted(files, key=sort_key)
 
 def move_ingested_files(file_paths):
     files_to_be_ingested_path = os.path.dirname(file_paths[0])
