@@ -57,6 +57,12 @@ python -m PyInstaller --name=ini_to_csv_script_v%version% --onefile --icon=Icon.
 :: Move the new executable
 move /Y dist\ini_to_csv_script_v%version%.exe .
 
+:: Remove old executable if it exists and is outdated
+if defined existingExe (
+    echo Deleting old executable: !existingExe!
+    del /f /q "!existingExe!"
+)
+
 :: Cleanup temp build files
 :Cleanup
 echo Cleaning up...
