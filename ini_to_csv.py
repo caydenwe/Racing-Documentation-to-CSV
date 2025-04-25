@@ -224,6 +224,8 @@ def on_button_click(option, root):
     elif option == "run":
         ini_to_csv_main()
         
+        sys.exit(0)
+        
     root.destroy()
     print("Closing the GUI.")
 
