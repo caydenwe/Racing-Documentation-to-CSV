@@ -66,23 +66,40 @@ if defined existingExe (
 :: Cleanup temp build files
 :Cleanup
 echo Cleaning up...
-del /f /q "ini_to_csv_script_v%version%.spec"
 del /f /q "ini_to_csv_script_v%version%.py"
 del /f /q "Icon.ico"
-rmdir /s /q "dist"
-rmdir /s /q "build"
+
+if exist "ini_to_csv_script_v%version%.spec" (
+    del /f /q "ini_to_csv_script_v%version%.spec"
+) else (
+    echo File ini_to_csv_script_v%version%.spec not found, skipping deletion.
+)
+
+:: Check and remove "dist" directory if it exists
+if exist "dist" (
+    rmdir /s /q "dist"
+) else (
+    echo Directory "dist" not found, skipping removal.
+)
+
+:: Check and remove "build" directory if it exists
+if exist "build" (
+    rmdir /s /q "build"
+) else (
+    echo Directory "build" not found, skipping removal.
+)
 
 :: Create desktop shortcut
-echo Creating desktop shortcut...
-powershell -Command ^
-    "$WshShell = New-Object -ComObject WScript.Shell; ^
-    $DesktopPath = [System.Environment]::GetFolderPath('Desktop'); ^
-    $Shortcut = $WshShell.CreateShortcut($DesktopPath + '\INI to CSV Converter.lnk'); ^
-    $Shortcut.TargetPath = '%USERPROFILE%\OneDrive\South Coast Motor Racing\simulator stuff\ini_to_csv_script_v%version%.exe'; ^
-    $Shortcut.WorkingDirectory = '%USERPROFILE%\OneDrive\South Coast Motor Racing\simulator stuff'; ^
-    $Shortcut.WindowStyle = 1; ^
-    $Shortcut.Description = 'INI to CSV Converter'; ^
-    $Shortcut.Save()"
+echo Recreating desktop shortcut...
+set shortcutPath=%USERPROFILE%\Desktop\INI to CSV Converter.lnk
+
+:: Check if the shortcut exists and delete it
+if exist "%shortcutPath%" (
+    echo Deleting existing shortcut...
+    del "%shortcutPath%"
+)
+
+powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $DesktopPath = [System.Environment]::GetFolderPath('Desktop'); $Shortcut = $WshShell.CreateShortcut($DesktopPath + '\INI to CSV Converter.lnk'); $Shortcut.TargetPath = '%USERPROFILE%\OneDrive\South Coast Motor Racing\simulator stuff\ini_to_csv_script_v!version!.exe'; $Shortcut.WorkingDirectory = '%USERPROFILE%\OneDrive\South Coast Motor Racing\simulator stuff'; $Shortcut.WindowStyle = 1; $Shortcut.Description = 'INI to CSV Converter'; $Shortcut.Save()"
 
 echo Script finished.
 endlocal
