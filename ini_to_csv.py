@@ -7,12 +7,10 @@ Date: 2025-04-26
 Author: Cayden Wellsmore
 """
 
-import os, subprocess, sys,urllib.request, re, glob, shutil, configparser, csv, logging
+import os, subprocess, sys,urllib.request, re, glob, shutil, configparser, csv
 import tkinter as tk
 from tkinter import messagebox, filedialog
 from datetime import datetime
-
-logging.basicConfig(filename="log.txt", level=logging.DEBUG)
 
 class CreateToolTip:
     def __init__(self, widget, text):
@@ -44,12 +42,12 @@ class CreateToolTip:
 def check_pillow():
     if getattr(sys, 'frozen', False):
         # If running as a PyInstaller EXE, don't check/install Pillow
-        logging.debug("Running in EXE, skipping pillow check.")
+        print("Running in EXE, skipping pillow check.")
         return
     try:
         installed_packages = subprocess.check_output([sys.executable, "-m", "pip", "list"]).decode("utf-8")
         if "pillow" in installed_packages:
-            logging.debug("Pillow is already installed.")
+            print("Pillow is already installed.")
         else:
             print("Pillow is not installed. Installing now...")
             subprocess.check_call([sys.executable, "-m", "pip", "install", "pillow"])
@@ -218,13 +216,16 @@ def ini_to_csv_main():
     print(f"Completed. Opening output: {outputfile_path}")
     subprocess.run(['explorer', f'/select,{outputfile_path}'])
 
-def on_button_click(option):
+def on_button_click(option, root):
     if option == "report":
         report_bug()
     elif option == "update":
         check_for_updates()
     elif option == "run":
         ini_to_csv_main()
+        
+    root.destroy()
+    print("Closing the GUI.")
 
 def create_gui():
     root = tk.Tk()
@@ -239,7 +240,7 @@ def create_gui():
     }
 
     for text, action in buttons.items():
-        cmd = root.destroy if action == "close" else lambda opt=action: on_button_click(opt)
+        cmd = root.destroy if action == "close" else lambda opt=action: on_button_click(opt, root)
         btn = tk.Button(root, text=text, width=30, command=cmd)
         btn.pack(pady=10)
         CreateToolTip(btn, f"Action: {text}")
