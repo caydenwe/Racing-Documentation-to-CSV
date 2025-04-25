@@ -1,115 +1,113 @@
 @echo off
 setlocal enabledelayedexpansion
 
-REM Change to a different directory
+:: Set working directory
 cd "%USERPROFILE%\OneDrive\South Coast Motor Racing\simulator stuff"
 
-REM Download file from GitHub
-curl -L -o ini_to_csv_script.py https://raw.githubusercontent.com/caydenwe/Racing-Documentation-to-CSV/refs/heads/main/ini_to_csv.py
-curl -L -o Icon.ico https://raw.githubusercontent.com/caydenwe/Racing-Documentation-to-CSV/refs/heads/main/Icon.ico
+:: Download latest Python file and Icon
+echo Downloading latest files from GitHub...
+curl -L -o ini_to_csv_script.py https://raw.githubusercontent.com/caydenwe/Racing-Documentation-to-CSV/main/ini_to_csv.py
+curl -L -o Icon.ico https://raw.githubusercontent.com/caydenwe/Racing-Documentation-to-CSV/main/Icon.ico
 
-REM Extract version from Python file
+:: Extract Version from downloaded Python file
 for /f "tokens=2 delims= " %%A in ('findstr /C:"Version:" ini_to_csv_script.py') do set "version=%%A"
 set "version=%version: =%"
+echo Detected Version: %version%
 
-REM Copy the Python file with a versioned name
+:: Rename downloaded Python script with version in name
 rename ini_to_csv_script.py ini_to_csv_script_v%version%.py
 
-REM Initialize a counter
-set count=0
-
-REM Loop through matching files
-for %%F in (ini_to_csv_script_v*.*.*.exe) do (
-
-    REM Increment the counter
-    set /a count+=1
-    
-    REM If more than one file is found, exit with an error
-    if !count! gtr 1 (
-        echo ERROR: More than one file matches the pattern. Exiting.
-        exit /b 1
-    )
-    
-    REM Extract the version number
-    set "filename=%%~nF"
-    set "filepart="
-    
-    REM Remove the prefix "ini_to_csv_script_v"
-    set "filepart=!filename:~19!"
-
-    REM Remove the suffix ".exe"
-    set "filepart=!filepart:.exe=!"
-)
-echo %count% files found.
-
-REM Split the version number (major, minor, patch)
-for /f "tokens=1,2,3 delims=." %%a in ("%version%") do (
-    set major=%%a
-    set minor=%%b
-    set patch=%%c
+:: Check if an existing EXE already exists
+set existingExe=
+for %%F in (ini_to_csv_script_v*.exe) do (
+    set "existingExe=%%F"
 )
 
-REM Split the installed file version
-for /f "tokens=1,2,3 delims=." %%a in ("!filepart!") do (
-    set file_major=%%a
-    set file_minor=%%b
-    set file_patch=%%c
-)
+if defined existingExe (
+    echo Found existing executable: %existingExe%
+    
+    :: Extract existing version
+    set "filename=%existingExe%"
+    set "file_version=!filename:~19,-4!"
+    echo Installed Version: !file_version!
 
-REM Compare the versions
-if %count%==1 (
-    if !file_major! gtr !major! (
-        echo There is a new version available.
-        call :Function1
-    ) else if !file_major! equ !major! (
-        if !file_minor! gtr !minor! (
-            echo There is a new version available.
-            call :Function1
-        ) else if !file_minor! equ !minor! (
-            if !file_patch! gtr !patch! (
-                echo There is a new version available.
-                call :Function1
-            ) else if !file_patch! equ !patch! (
-                echo You have the latest version available.
-                pause
-                del /f /q "Icon.ico"
-                del /f /q "ini_to_csv_script_v%version%.py"
-            ) else (
-                echo The version format is incorrect. Exiting.
-                pause
-                del /f /q "Icon.ico"
-                del /f /q "ini_to_csv_script_v%version%.py"
-                exit /b 1
-            )
-        )
+    :: Compare versions
+    call :CompareVersions !file_version! %version%
+    if !errorlevel! equ 0 (
+        echo You already have the latest version installed.
+        goto Cleanup
+    ) else (
+        echo New version detected, building updated executable...
     )
 ) else (
-    echo You have not installed this program before, installing from scratch.
-    call :Function1
+    echo No existing executable found. Building fresh...
 )
-goto :eof
 
-REM Function 1
-:Function1
-pause
+:: Build new executable
+:BuildExe
+echo Building executable with PyInstaller...
+where pyinstaller >nul 2>&1
+if errorlevel 1 (
+    echo PyInstaller not found. Installing...
+    python -m pip install pyinstaller
+)
 
-REM Run PyInstaller to create executable with version number in name
-python -m PyInstaller --name=ini_to_csv_script_v!version! --onefile --icon=Icon.ico ini_to_csv_script_v!version!.py
+python -m PyInstaller --name=ini_to_csv_script_v%version% --onefile --icon=Icon.ico ini_to_csv_script_v%version%.py
 
-REM Move selected files to the main folder
-move dist\ini_to_csv_script_v!version!.exe .\
+:: Move the new executable
+move /Y dist\ini_to_csv_script_v%version%.exe .
 
-REM Delete intermediary files for exe creation
-del /f /q "ini_to_csv_script_v!version!.spec"
-del /f /q "ini_to_csv_script_v!version!.py"
+:: Cleanup temp build files
+:Cleanup
+echo Cleaning up...
+del /f /q "ini_to_csv_script_v%version%.spec"
+del /f /q "ini_to_csv_script_v%version%.py"
 del /f /q "Icon.ico"
 rmdir /s /q "dist"
 rmdir /s /q "build"
 
-REM Create a desktop shortcut for the exe
+:: Create desktop shortcut
 echo Creating desktop shortcut...
-powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $DesktopPath = [System.Environment]::GetFolderPath('Desktop'); $Shortcut = $WshShell.CreateShortcut($DesktopPath + '\INI to CSV Converter.lnk'); $Shortcut.TargetPath = '%USERPROFILE%\OneDrive\South Coast Motor Racing\simulator stuff\ini_to_csv_script_v!version!.exe'; $Shortcut.WorkingDirectory = '%USERPROFILE%\OneDrive\South Coast Motor Racing\simulator stuff'; $Shortcut.WindowStyle = 1; $Shortcut.Description = 'INI to CSV Converter'; $Shortcut.Save()"
-goto :eof
+powershell -Command ^
+    "$WshShell = New-Object -ComObject WScript.Shell; ^
+    $DesktopPath = [System.Environment]::GetFolderPath('Desktop'); ^
+    $Shortcut = $WshShell.CreateShortcut($DesktopPath + '\INI to CSV Converter.lnk'); ^
+    $Shortcut.TargetPath = '%USERPROFILE%\OneDrive\South Coast Motor Racing\simulator stuff\ini_to_csv_script_v%version%.exe'; ^
+    $Shortcut.WorkingDirectory = '%USERPROFILE%\OneDrive\South Coast Motor Racing\simulator stuff'; ^
+    $Shortcut.WindowStyle = 1; ^
+    $Shortcut.Description = 'INI to CSV Converter'; ^
+    $Shortcut.Save()"
 
-endlocal
 echo Script finished.
+endlocal
+exit /b 0
+
+:: --- Compare two versions ---
+:CompareVersions
+setlocal
+set "ver1=%~1"
+set "ver2=%~2"
+
+for /f "tokens=1-3 delims=." %%a in ("%ver1%") do (
+    set "maj1=%%a"
+    set "min1=%%b"
+    set "pat1=%%c"
+)
+for /f "tokens=1-3 delims=." %%a in ("%ver2%") do (
+    set "maj2=%%a"
+    set "min2=%%b"
+    set "pat2=%%c"
+)
+
+:: Compare major
+if %maj1% lss %maj2% exit /b 1
+if %maj1% gtr %maj2% exit /b 0
+:: Compare minor
+if %min1% lss %min2% exit /b 1
+if %min1% gtr %min2% exit /b 0
+:: Compare patch
+if %pat1% lss %pat2% exit /b 1
+if %pat1% gtr %pat2% exit /b 0
+
+:: Versions equal
+exit /b 0
