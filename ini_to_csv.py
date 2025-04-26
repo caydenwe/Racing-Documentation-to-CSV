@@ -2,76 +2,155 @@
 INI Files Aggregator and Ingestor Script
 ----------------------------------------
 
-Version: 1.1.0
+Version: 1.2.0
 Date: 2025-04-26
 Author: Cayden Wellsmore
 """
 
-import configparser, csv, glob, os, re, shutil, subprocess, sys
+import os, subprocess, sys,urllib.request, re, glob, shutil, configparser, csv
 import tkinter as tk
-import tkinter.messagebox as messagebox
+from tkinter import messagebox, filedialog
 from datetime import datetime
-from tkinter import filedialog
 
+class CreateToolTip:
+    def __init__(self, widget, text):
+        self.widget = widget
+        self.text = text
+        self.tip_window = None
+        widget.bind("<Enter>", self.show_tip)
+        widget.bind("<Leave>", self.hide_tip)
+
+    def show_tip(self, event=None):
+        if self.tip_window or not self.text:
+            return
+        x, y, _cx, cy = self.widget.bbox("insert")
+        x += self.widget.winfo_rootx() + 25
+        y += cy + self.widget.winfo_rooty() + 25
+        self.tip_window = tw = tk.Toplevel(self.widget)
+        tw.wm_overrideredirect(True)
+        tw.wm_geometry(f"+{x}+{y}")
+        label = tk.Label(tw, text=self.text, justify="left",
+                         background="#ffffe0", relief="solid", borderwidth=1,
+                         font=("tahoma", "8", "normal"))
+        label.pack(ipadx=5, ipady=2)
+
+    def hide_tip(self, event=None):
+        if self.tip_window:
+            self.tip_window.destroy()
+            self.tip_window = None
+
+def check_pillow():
+    try:
+        installed_packages = subprocess.check_output([sys.executable, "-m", "pip", "list"]).decode("utf-8")
+        if "pillow" in installed_packages:
+            print("Pillow is already installed.")
+        else:
+            print("Pillow is not installed. Installing now...")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "pillow"])
+            print("Pillow has been successfully installed.")
+    except subprocess.CalledProcessError:
+        print("An error occurred while checking or installing Pillow.")
+
+def download_file(url, save_path):
+    try:
+        urllib.request.urlretrieve(url, save_path)
+        print(f"Downloaded: {os.path.basename(save_path)}")
+    except Exception as e:
+        print(f"Error downloading {os.path.basename(save_path)}: {e}")
+
+def execute_script(script_path):
+    if script_path.endswith('.ps1'):
+        subprocess.call(['powershell', '-ExecutionPolicy', 'Bypass', '-File', script_path])
+    elif script_path.endswith('.bat'):
+        subprocess.call([script_path])
+
+def report_bug():
+    """Download and run the bug reporting powershell script."""
+    script_path = os.path.join(os.path.dirname(__file__), "report.ps1")
+    if not os.path.exists(script_path):
+        download_file(
+            "https://raw.githubusercontent.com/caydenwe/Racing-Documentation-to-CSV/main/report.ps1",
+            script_path
+        )
+    execute_script(script_path)
+    try:
+        os.remove(script_path)
+    except Exception:
+        pass
+    messagebox.showinfo("Done", "Bug report or feature request submitted.")
+
+def check_for_updates():
+    """Download and run the update checking batch script."""
+    batch_path = os.path.join(os.path.dirname(__file__), "setup_or_check_for_update.bat")
+    if not os.path.exists(batch_path):
+        download_file(
+            "https://raw.githubusercontent.com/caydenwe/Racing-Documentation-to-CSV/main/setup_or_check_for_update.bat",
+            batch_path
+        )
+    execute_script(batch_path)
+    try:
+        os.remove(batch_path)
+    except Exception:
+        pass
+    messagebox.showinfo("Done", "Update check complete.")
+
+def select_directory_gui(initial_directory):
+    root = tk.Tk()
+    root.withdraw()
+    return filedialog.askdirectory(initialdir=initial_directory, title="Select Directory")
 
 def get_folders(path):
     return [f for f in os.listdir(path) if os.path.isdir(os.path.join(path, f))]
-
-def select_directory_gui(directory):
-    root = tk.Tk()
-    root.withdraw()
-    return filedialog.askdirectory(initialdir=directory, title="Select Directory")
 
 def get_ini_files(directory):
     files = glob.glob(os.path.join(directory, '*.ini'))
     pattern = re.compile(r'^[A-Z]{3} \d{1,2} Setup [A-Z]$', re.IGNORECASE)
 
-    # Validate all filenames
     invalid_files = [
         os.path.basename(f) for f in files
         if not pattern.match(os.path.splitext(os.path.basename(f))[0])
     ]
 
     if invalid_files:
-        error_message = (
-            "The naming convention of the files in the folder you selected "
-            "isn't consistent with the predetermined naming convention.\n\n"
-            "Expected format: MMM D Setup L\n"
-            "Examples: 'FEB 1 Setup A', 'Apr 9 Setup C'\n\n"
-            f"Issue found with:\n{chr(10).join(invalid_files)}"
+        messagebox.showerror(
+            "Filename Error",
+            "Files do not follow naming convention:\n\n"
+            "Expected: MMM D Setup L (e.g., 'FEB 1 Setup A')\n\n"
+            f"Issue with:\n{chr(10).join(invalid_files)}"
         )
-        messagebox.showerror("Filename Error", error_message)
         sys.exit(1)
 
     def sort_key(file):
         name = os.path.splitext(os.path.basename(file))[0]
         match = re.match(r'([A-Z]{3}) (\d{1,2}) setup ([A-Z])', name, re.IGNORECASE)
-        month_str, day_str, suffix = match.groups()
-        date_part = datetime.strptime(f"{month_str.upper()} {int(day_str)}", "%b %d")
-        return (date_part, suffix.upper())
+        if match:
+            month_str, day_str, suffix = match.groups()
+            date_part = datetime.strptime(f"{month_str.upper()} {int(day_str)}", "%b %d")
+            return (date_part, suffix.upper())
+        return (datetime.now(), "")  # fallback in case of unexpected format
 
     return sorted(files, key=sort_key)
 
 def move_ingested_files(file_paths):
-    files_to_be_ingested_path = os.path.dirname(file_paths[0])
-    destination_folder = os.path.join(files_to_be_ingested_path, 'Ingested')
-    if not os.path.exists(destination_folder):
-        os.makedirs(destination_folder)
-    for file_path in file_paths:
-        try:
-            ini_filename = os.path.basename(file_path)
-            sp_filename = os.path.splitext(ini_filename)[0] + ".sp"
-            shutil.move(file_path, os.path.join(destination_folder, ini_filename))
-            shutil.move(os.path.splitext(file_path)[0] + ".sp", os.path.join(destination_folder, sp_filename))
-            print(f"Moved: {ini_filename} and {sp_filename} to {destination_folder}")
-        except Exception as e:
-            print(f"Error moving file {file_path}: {e}")
+    destination_folder = os.path.join(os.path.dirname(file_paths[0]), 'Ingested')
+    os.makedirs(destination_folder, exist_ok=True)
 
-def main():
+    for file_path in file_paths:
+        base, _ = os.path.splitext(file_path)
+        ini_file = base + '.ini'
+        sp_file = base + '.sp'
+
+        try:
+            shutil.move(ini_file, os.path.join(destination_folder, os.path.basename(ini_file)))
+            shutil.move(sp_file, os.path.join(destination_folder, os.path.basename(sp_file)))
+            print(f"Moved: {os.path.basename(ini_file)} and {os.path.basename(sp_file)}")
+        except Exception as e:
+            print(f"Error moving files: {e}")
+
+def ini_to_csv_main():
     current_dir = os.getcwd()
-    directories = get_folders(current_dir)
-    if not directories:
-        print("No directories found in the current directory.")
+    if not get_folders(current_dir):
+        print("No folders found.")
         return
 
     selected_directory = select_directory_gui(current_dir)
@@ -86,72 +165,81 @@ def main():
         print(f"No .ini files found in {selected_directory}.")
         return
 
-    # --- Step 1: Collect headers ---
-    all_headers_sets = []
-    all_headers_order = []
-    seen_headers = set()
+    headers_seen = []
+    headers_sets = []
+    seen = set()
 
     for file in ini_files:
         config = configparser.ConfigParser()
         config.read(file)
         headers = set()
+
         for section in config.sections():
             if section not in ['CAR', '__EXT_PATCH']:
                 headers.add(section)
-                if section not in seen_headers:
-                    all_headers_order.append(section)
-                    seen_headers.add(section)
-        all_headers_sets.append(headers)
+                if section not in seen:
+                    headers_seen.append(section)
+                    seen.add(section)
 
-    # Identify common headers (intersection across all files)
-    common_headers = set.intersection(*all_headers_sets) if all_headers_sets else set()
-    common_headers = sorted(common_headers)  # Alphabetical order
+        headers_sets.append(headers)
 
-    # Identify additional headers (those not common)
-    additional_headers = [h for h in all_headers_order if h not in common_headers]  # Keep first-seen order
+    common_headers = sorted(set.intersection(*headers_sets)) if headers_sets else []
+    final_headers = common_headers + [h for h in headers_seen if h not in common_headers]
 
-    # Final header list
-    final_headers = common_headers + additional_headers
-
-    print(f"Common headers: {common_headers}")
-    print(f"Additional headers: {additional_headers}")
-    print(f"Final headers: {final_headers}")
-    
     outputfile_path = os.path.join(selected_directory, 'output.csv')
-
-    # Normalize path to use backslashes
     outputfile_path = os.path.normpath(outputfile_path)
 
-    # --- Step 2: Write CSV file ---
     with open(outputfile_path, mode='w', newline='') as file:
         writer = csv.writer(file)
-        header_row = ['filename', ''] + final_headers
-        writer.writerow(header_row)
+        writer.writerow(['filename', ''] + final_headers)
 
-        # --- Step 3: Process each .ini file ---
-        for file in ini_files:
-            filename = os.path.splitext(os.path.basename(file))[0]
-            print(f"Reading file: {filename}")
+        for file_path in ini_files:
+            filename = os.path.splitext(os.path.basename(file_path))[0]
             config = configparser.ConfigParser()
-            config.read(file)
+            config.read(file_path)
 
-            # Gather values for all headers in final_headers list
-            values_dict = {}
+            values = []
             for header in final_headers:
                 try:
-                    value = int(list(config[header].items())[0][1])  # Extract first value as integer
+                    value = int(list(config[header].items())[0][1])
                 except (IndexError, ValueError, KeyError):
-                    value = ''  # Leave empty if not found or invalid
-                values_dict[header] = value
+                    value = ''
+                values.append(value)
 
-            # Prepare data row in the same order as headers
-            data_row = [filename, ''] + [values_dict[h] for h in final_headers]
-            writer.writerow(data_row)
+            writer.writerow([filename, ''] + values)
 
     move_ingested_files(ini_files)
-    print("Process completed successfully.")
-    print(f"Opening folder: {outputfile_path}")
+    print(f"Completed. Opening output: {outputfile_path}")
     subprocess.run(['explorer', f'/select,{outputfile_path}'])
 
+def on_button_click(option):
+    if option == "report":
+        report_bug()
+    elif option == "update":
+        check_for_updates()
+    elif option == "run":
+        ini_to_csv_main()
+
+def create_gui():
+    root = tk.Tk()
+    root.title("Select an Option")
+    root.geometry("320x250")
+
+    buttons = {
+        "Report a Bug / Request Feature": "report",
+        "Check for Updates": "update",
+        "Run Conversion Script": "run",
+        "Close": "close"
+    }
+
+    for text, action in buttons.items():
+        cmd = root.destroy if action == "close" else lambda opt=action: on_button_click(opt)
+        btn = tk.Button(root, text=text, width=30, command=cmd)
+        btn.pack(pady=10)
+        CreateToolTip(btn, f"Action: {text}")
+
+    root.mainloop()
+
 if __name__ == "__main__":
-    main()
+    check_pillow()
+    create_gui()
