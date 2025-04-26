@@ -18,14 +18,14 @@ echo Detected Version: %version%
 rename ini_to_csv_script.py ini_to_csv_script_v%version%.py
 
 :: Check if an existing EXE already exists
-set existingExe=
+set existingExe= 
 for %%F in (ini_to_csv_script_v*.exe) do (
     set "existingExe=%%F"
 )
 
 if defined existingExe (
     echo Found existing executable: %existingExe%
-    
+
     :: Extract existing version
     set "filename=%existingExe%"
     set "file_version=!filename:~19,-4!"
@@ -59,11 +59,18 @@ move /Y dist\ini_to_csv_script_v%version%.exe .
 
 :: Remove old executable if it exists and is outdated
 if defined existingExe (
-    echo Deleting old executable: !existingExe!
+    :: Terminate old executable first
+    echo Terminating the old executable: !existingExe!
+    taskkill /f /im "ini_to_csv_script_v%file_version%.exe" >nul 2>&1
+    timeout /t 3 /nobreak >nul
+
+    :: Proceed to delete old EXE (and other files)
+    echo Deleting old executable...
+    attrib -r /s /d "!existingExe!"
     del /f /q "!existingExe!"
 )
 
-:: Cleanup temp build files
+:: Proceed with cleanup of temporary build files
 :Cleanup
 echo Cleaning up...
 del /f /q "ini_to_csv_script_v%version%.py"
