@@ -2,7 +2,7 @@
 INI Files Aggregator and Ingestor Script
 ----------------------------------------
 
-Version: 1.2.0
+Version: 1.2.1
 Date: 2025-04-26 
 Author: Cayden Wellsmore
 """
@@ -108,7 +108,7 @@ def get_folders(path):
 
 def get_ini_files(directory):
     files = glob.glob(os.path.join(directory, '*.ini'))
-    pattern = re.compile(r'^[A-Z]{3} \d{1,2} Setup [A-Z]$', re.IGNORECASE)
+    pattern = re.compile(r'^[A-Z]{3} \d{1,2} (Setup [A-Z]|Final)(?: .*)?$', re.IGNORECASE)
 
     invalid_files = [
         os.path.basename(f) for f in files
@@ -124,16 +124,21 @@ def get_ini_files(directory):
         )
         sys.exit(1)
 
-    def sort_key(file):
-        name = os.path.splitext(os.path.basename(file))[0]
-        match = re.match(r'([A-Z]{3}) (\d{1,2}) setup ([A-Z])', name, re.IGNORECASE)
-        if match:
-            month_str, day_str, suffix = match.groups()
-            date_part = datetime.strptime(f"{month_str.upper()} {int(day_str)}", "%b %d")
-            return (date_part, suffix.upper())
-        return (datetime.now(), "")  # fallback in case of unexpected format
+def sort_key(file):
+    name = os.path.splitext(os.path.basename(file))[0]
+    match_setup = re.match(r'([A-Z]{3}) (\d{1,2}) setup ([A-Z])(?: .*)?$', name, re.IGNORECASE)
+    match_final = re.match(r'([A-Z]{3}) (\d{1,2}) final(?: .*)?$', name, re.IGNORECASE)
 
-    return sorted(files, key=sort_key)
+    if match_setup:
+        month_str, day_str, suffix = match_setup.groups()
+        date_part = datetime.strptime(f"{month_str.upper()} {int(day_str)}", "%b %d")
+        return (date_part, 0, suffix.upper())  # 0 for Setup to come first
+    elif match_final:
+        month_str, day_str = match_final.groups()
+        date_part = datetime.strptime(f"{month_str.upper()} {int(day_str)}", "%b %d")
+        return (date_part, 1, "")  # 1 for Final to come after Setups
+    else:
+        return (datetime.now(), 2, "")  # fallback
 
 def move_ingested_files(file_paths):
     destination_folder = os.path.join(os.path.dirname(file_paths[0]), 'Ingested')
@@ -214,7 +219,7 @@ def ini_to_csv_main():
 
     move_ingested_files(ini_files)
     print(f"Completed. Opening output: {outputfile_path}")
-    subprocess.run(['explorer', f'/select,{outputfile_path}'])
+    subprocess.run(['explorer', f'/select,"{outputfile_path}"'])
 
 def on_button_click(option, root):
     if option == "report":
