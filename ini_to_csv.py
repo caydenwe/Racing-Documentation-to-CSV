@@ -2,7 +2,7 @@
 INI Files Aggregator and Ingestor Script
 ----------------------------------------
 
-Version: 1.2.1
+Version: 1.2.2
 Date: 2025-04-26 
 Author: Cayden Wellsmore
 """
@@ -107,12 +107,12 @@ def get_folders(path):
     return [f for f in os.listdir(path) if os.path.isdir(os.path.join(path, f))]
 
 def get_ini_files(directory):
-    files = glob.glob(os.path.join(directory, '*.ini'))
-    pattern = re.compile(r'^[A-Z]{3} \d{1,2} (Setup [A-Z]|Final)(?: .*)?$', re.IGNORECASE)
+    files = [f.replace('\\', '/') for f in glob.glob(os.path.join(directory, '*.ini'))]
+    pattern = re.compile(r'^[A-Z]{3} \d{1,2} (Setup [A-Z]|Final)(?: .*)?.ini$', re.IGNORECASE)
 
     invalid_files = [
         os.path.basename(f) for f in files
-        if not pattern.match(os.path.splitext(os.path.basename(f))[0])
+        if not pattern.match(os.path.basename(f))
     ]
 
     if invalid_files:
@@ -123,6 +123,7 @@ def get_ini_files(directory):
             f"Issue with:\n{chr(10).join(invalid_files)}"
         )
         sys.exit(1)
+    return sorted(files, key=sort_key)
 
 def sort_key(file):
     name = os.path.splitext(os.path.basename(file))[0]
@@ -219,8 +220,7 @@ def ini_to_csv_main():
 
     move_ingested_files(ini_files)
     print(f"Completed. Opening output: {outputfile_path}")
-    subprocess.run(['explorer', f'/select,"{outputfile_path}"'])
-
+    subprocess.run(f'explorer /select,"{outputfile_path}"', shell=True)
 def on_button_click(option, root):
     if option == "report":
         report_bug()
