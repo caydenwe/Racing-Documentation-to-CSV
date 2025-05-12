@@ -47,8 +47,8 @@ if defined existingExe (
 :BuildExe
 echo Building executable with PyInstaller...
 
-echo Upgrading pip...
-python -m pip install --upgrade pip
+
+
 
 where pyinstaller >nul 2>&1
 if errorlevel 1 (
@@ -112,6 +112,11 @@ if exist "%shortcutPath%" (
 
 powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $DesktopPath = [System.Environment]::GetFolderPath('Desktop'); $Shortcut = $WshShell.CreateShortcut($DesktopPath + '\INI to CSV Converter.lnk'); $Shortcut.TargetPath = '%USERPROFILE%\OneDrive\South Coast Motor Racing\simulator stuff\ini_to_csv_script_v!version!.exe'; $Shortcut.WorkingDirectory = '%USERPROFILE%\OneDrive\South Coast Motor Racing\simulator stuff'; $Shortcut.WindowStyle = 1; $Shortcut.Description = 'INI to CSV Converter'; $Shortcut.Save()"
 
+@REM echo Upgrading pip...
+@REM python -m pip install --upgrade pip || (
+@REM     echo Pip upgrade failed, continuing anyway...
+@REM )
+
 echo Script finished.
 endlocal
 exit /b 0
@@ -142,6 +147,3 @@ if %min1% gtr %min2% exit /b 0
 :: Compare patch
 if %pat1% lss %pat2% exit /b 1
 if %pat1% gtr %pat2% exit /b 0
-
-:: Versions equal
-exit /b 0
