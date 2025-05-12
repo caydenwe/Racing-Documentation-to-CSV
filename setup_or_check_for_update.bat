@@ -46,6 +46,10 @@ if defined existingExe (
 :: Build new executable
 :BuildExe
 echo Building executable with PyInstaller...
+
+echo Upgrading pip...
+python -m pip install --upgrade pip
+
 where pyinstaller >nul 2>&1
 if errorlevel 1 (
     echo PyInstaller not found. Installing...
